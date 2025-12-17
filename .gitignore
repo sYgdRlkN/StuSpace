@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Django
+db.sqlite3
+
+# Frontend
+node_modules/
+
+# IDE
+.idea/
+.vscode/
