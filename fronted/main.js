@@ -203,6 +203,14 @@ function logout() {
     window.location.href = "login.html";
 }
 
+function showLogin() {
+    document.getElementById("loginModal").classList.add("show");
+}
+
+function hideLogin() {
+    document.getElementById("loginModal").classList.remove("show");
+}
+
 /* ======================
    页面初始化
 ====================== */
