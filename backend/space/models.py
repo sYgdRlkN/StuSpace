@@ -53,3 +53,18 @@ class UsageRecord(models.Model):
 
     class Meta:
         db_table = 'usage_record'
+
+
+class AbnormalBehavior(models.Model):
+    TYPE_CHOICES = [
+        ('no_show', 'No Show'),
+        ('overtime', 'Overtime'),
+    ]
+    abnormal_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, db_column='user_id', on_delete=models.CASCADE)
+    space = models.ForeignKey(StudySpace, db_column='space_id', on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    record_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'abnormal_behavior'

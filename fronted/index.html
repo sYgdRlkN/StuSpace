@@ -54,7 +54,35 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="main.js"></script>
+
+<!-- Reservation Modal -->
+<div class="modal fade" id="reserveModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">预约时间</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modalSpaceId">
+        <div class="mb-3">
+            <label class="form-label">开始时间</label>
+            <input type="datetime-local" class="form-control" id="startTime">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">结束时间</label>
+            <input type="datetime-local" class="form-control" id="endTime">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" onclick="confirmReserve()">确认预约</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 function logout() {
