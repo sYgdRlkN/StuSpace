@@ -24,38 +24,40 @@ function login() {
 // 加载学习空间
 function loadSpaces() {
     fetch(`${API_BASE}/spaces/`)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error("spaces fetch failed");
-            }
-            return res.json();   // ⭐必须 return
-        })
+        .then(res => res.json())
         .then(data => {
             const table = document.getElementById("spaceTable");
+            if (!table) return;
+
             table.innerHTML = "";
 
             data.forEach(space => {
+                // 容量颜色
+                let capacityClass = "text-success";
+                if (space.capacity <= 20) capacityClass = "text-danger";
+                else if (space.capacity <= 50) capacityClass = "text-warning";
+
+                const disabled = space.capacity <= 0 ? "disabled" : "";
+
                 table.innerHTML += `
-                    <tr>
-                        <td>${space.name}</td>
-                        <td>${space.location}</td>
-                        <td>${space.available} / ${space.capacity}</td>
-                        <td>
-                          ${
-                            space.available > 0
-                              ? `<button onclick="reserve(${space.space_id})">预约</button>`
-                              : `<button disabled>已满</button>`
-                          }
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${space.name}</td>
+                    <td>${space.location}</td>
+                    <td class="text-center fw-bold ${capacityClass}">
+                        ${space.available} / ${space.capacity}
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-success btn-sm"
+                                ${disabled}
+                                onclick="reserve(${space.space_id})">
+                            预约
+                        </button>
+                    </td>
+                </tr>
                 `;
             });
-        })
-        .catch(err => {
-            console.error("loadSpaces error:", err);
         });
 }
-
 
 // 预约
 function reserve(spaceId) {
@@ -64,6 +66,10 @@ function reserve(spaceId) {
         alert("请先登录");
         return;
     }
+
+    // 防止重复点击
+    if (window.reserving) return;
+    window.reserving = true;
 
     const startTime = new Date();
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
@@ -78,29 +84,42 @@ function reserve(spaceId) {
             end_time: endTime.toISOString()
         })
     })
-    .then(res => {
+    .then(async res => {
+        // ⛔ 关键：先判断 HTTP 状态码
         if (!res.ok) {
-            throw new Error("reserve failed");
+            const text = await res.text();
+            throw new Error(text || "预约失败");
         }
-        return res.json();   // ⭐关键
+        return res.json();
     })
     .then(data => {
-        if (data.msg === "success") {
-            alert("预约成功！");
-            loadSpaces();
-        } else if (data.msg === "full") {
-            alert("该时间段已满员");
-        }
+        showMsg("预约成功！", "success");
+        loadSpaces();   // 容量会正确刷新
     })
     .catch(err => {
-        console.error("reserve error:", err);
-        alert("预约失败，请看控制台");
+        showMsg("预约失败：该学习空间已无剩余容量或已预约", "danger");
+        console.error(err);
+    })
+    .finally(() => {
+        window.reserving = false;
     });
 }
 
 
+// 提示框
+function showMsg(text, type) {
+    const box = document.getElementById("msgBox");
+    if (!box) return;
+
+    box.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show">
+            ${text}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+
+// 页面加载
 document.addEventListener("DOMContentLoaded", function () {
-    if (document.getElementById("spaceTable")) {
-        loadSpaces();
-    }
+    loadSpaces();
 });
