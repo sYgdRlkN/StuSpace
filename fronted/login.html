@@ -2,76 +2,78 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>学习空间预约系统 - 登录</title>
+    <title>校园学习空间预约系统</title>
 
-    <!-- Bootstrap CSS -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    />
-
-    <style>
-        body {
-            background: linear-gradient(135deg, #4e73df, #1cc88a);
-        }
-        .login-card {
-            border-radius: 12px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="ui.css" rel="stylesheet">
 </head>
-<body>
 
-<div class="container vh-100 d-flex justify-content-center align-items-center">
-    <div class="card shadow login-card" style="width: 380px;">
-        <div class="card-body p-4">
+<body class="login-page">
 
-            <h3 class="text-center mb-3">学习空间预约系统</h3>
-            <p class="text-center text-muted mb-4">
-                校园学习空间智能管理平台
-            </p>
+<!-- 导航栏 -->
+<nav class="navbar campus-navbar px-4">
+    <span class="navbar-brand">🏫 校园学习空间预约系统</span>
 
-            <ul class="nav nav-tabs nav-fill mb-4" id="authTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">登录</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">注册</button>
-                </li>
-            </ul>
+    <div class="ms-auto">
+        <button class="btn btn-outline-light btn-sm" onclick="showLogin()">登录</button>
+    </div>
+</nav>
 
-            <div class="tab-content" id="authTabContent">
-                <!-- 登录面板 -->
-                <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
-                    <div class="mb-3">
-                        <label class="form-label">用户名</label>
-                        <input id="username" class="form-control" placeholder="请输入用户名">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label">密码</label>
-                        <input id="password" type="password" class="form-control" placeholder="请输入密码">
-                    </div>
-                    <button class="btn btn-primary w-100" onclick="login()">登录</button>
-                </div>
+<!-- 主体 -->
+<section class="hero-section">
+    <!-- 遮罩 -->
+    <div class="hero-overlay"></div>
+        <div class="welcome-text">
+            <h1>欢迎来到</h1>
+            <h1 class="hero-title">学习空间预约系统</h1>
+            <p>Welcome to the Space Reservation System</p>
+        </div>
+    </section>
 
-                <!-- 注册面板 -->
-                <div class="tab-pane fade" id="register-pane" role="tabpanel">
-                    <div class="mb-3">
-                        <label class="form-label">新用户名</label>
-                        <input id="reg-username" class="form-control" placeholder="设置用户名">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label">设置密码</label>
-                        <input id="reg-password" type="password" class="form-control" placeholder="设置密码">
-                    </div>
-                    <button class="btn btn-success w-100" onclick="register()">注册并登录</button>
-                </div>
-            </div>
 
+<!-- 登录弹窗（默认隐藏） -->
+<div id="loginModal" class="login-modal">
+    <div class="login-card shadow">
+        <h4 class="mb-3 text-center">用户登录</h4>
+
+        <input id="username" class="form-control mb-3" placeholder="学号 / 用户名">
+        <input id="password" type="password" class="form-control mb-3" placeholder="密码">
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-secondary w-50" onclick="hideLogin()">取消</button>
+            <button class="btn btn-primary w-50" onclick="login()">登录</button>
         </div>
     </div>
 </div>
+<section class="stats-section">
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">200+</div>
+                <div class="stat-label">学习空间</div>
+            </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="stat-divider"></div>
+
+            <div class="stat-item">
+                <div class="stat-number">3500+</div>
+                <div class="stat-label">预约总数</div>
+            </div>
+
+            <div class="stat-divider"></div>
+
+            <div class="stat-item">
+                <div class="stat-number">5万+</div>
+                <div class="stat-label">使用人次</div>
+            </div>
+
+            <div class="stat-divider"></div>
+
+            <div class="stat-item">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">用户评价</div>
+            </div>
+        </div>
+    </section>
 <script src="main.js"></script>
 </body>
 </html>
