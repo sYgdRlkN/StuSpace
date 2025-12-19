@@ -1,0 +1,169 @@
+/* ========== 全局基础 ========== */
+body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* 页面背景（整页） */
+.login-page {
+    min-height: 100vh;
+    background: url("assets/login.jpg") center / cover no-repeat fixed;
+}
+
+/* ========== 顶部导航栏 ========== */
+.campus-navbar {
+    background-color: rgb(29, 73, 153);
+    min-height: 72px;
+}
+
+.campus-navbar .navbar-brand {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* ========== 上半部分 Hero 区 ========== */
+.hero-section {
+    position: relative;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+/* 遮罩层（只作用于 Hero） */
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.25);
+    z-index: 1;
+}
+
+/* 欢迎文字 */
+.welcome-text {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    text-align: left;
+    margin-left: 400px;
+    margin-top: 100px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.welcome-text h1 {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.welcome-text p {
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: bold;
+    opacity: 1;
+}
+
+/* ========== 下半部分 导视栏区域 ========== */
+.stats-section {
+    height: 25vh;
+    background-color: rgba(29, 73, 153, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-bar {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+}
+
+/* 单个统计项 */
+.stat-item {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 1rem;
+    margin-top: 6px;
+    opacity: 0.9;
+}
+
+/* 分隔线 */
+.stat-divider {
+    width: 1px;
+    height: 100px;
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ========== 登录弹窗 ========== */
+.login-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.35);
+    z-index: 999;
+}
+
+.login-modal.show {
+    display: flex;
+    animation: fadeIn 0.25s ease;
+}
+
+/* 登录卡片 */
+.login-card {
+    width: 360px;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+}
+
+/* 弹窗动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== 响应式适配（加分） ========== */
+@media (max-width: 992px) {
+    .welcome-text {
+        margin-left: 60px;
+    }
+
+    .welcome-text h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-text {
+        margin-left: 30px;
+        text-align: center;
+    }
+
+    .stats-bar {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .stat-divider {
+        display: none;
+    }
+}
