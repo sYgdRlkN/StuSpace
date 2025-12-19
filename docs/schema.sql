@@ -1,5 +1,6 @@
 CREATE DATABASE study_space_db DEFAULT CHARSET utf8mb4;
 USE study_space_db;
+
 CREATE TABLE user (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,

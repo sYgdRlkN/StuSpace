@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'study_space_db',
         'USER': 'root',
-        'PASSWORD': '666666',
+        'PASSWORD': 'Jiang0113@',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
