@@ -167,3 +167,73 @@ body {
         display: none;
     }
 }
+
+/*================= index.html =========================*/
+
+/* 仪表盘页面样式 */
+.dashboard-page {
+    background-color: #f8f9fc;
+}
+
+.dashboard-hero {
+    background: linear-gradient(rgba(26, 35, 126, 0.85), rgba(13, 71, 161, 0.9)),
+                url("assets/login.jpg");
+    background-size: cover;
+    background-position: center;
+    padding: 80px 0;
+    color: white;
+}
+
+.dashboard-card {
+    border-radius: 15px;
+    border: none;
+    overflow: hidden;
+}
+
+.campus-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+}
+
+.campus-table-header {
+    background-color: #f8f9fa;
+}
+
+.campus-table-header th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.guide-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.guide-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.guide-icon {
+    font-size: 2.5rem;
+}
+
+.campus-modal {
+    border-radius: 15px;
+    border: none;
+}
+
+.campus-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.campus-modal-footer {
+    border-top: 1px solid #e0e0e0;
+    padding: 1rem 2rem;
+}

@@ -51,19 +51,35 @@ function register() {
 
     fetch(`${API_BASE}/register/`, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username, password })
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
     })
     .then(res => res.json())
     .then(data => {
         if (data.msg === "success") {
-            alert("注册成功，已自动登录");
+            alert("注册成功，正在自动登录...");
+
+            // 自动登录逻辑
             localStorage.setItem("user_id", data.user_id);
-            localStorage.setItem("role", "student");
+            localStorage.setItem("role", "student"); // 默认注册为学生
+
+            // 可选：也保存用户名
+            localStorage.setItem("username", username);
+
+            // 跳转到主页
             window.location.href = "index.html";
         } else {
-            alert("注册失败：" + data.msg);
+            alert("注册失败: " + data.msg);
         }
+    })
+    .catch(error => {
+        console.error("注册请求失败:", error);
+        alert("网络错误，请稍后重试");
     });
 }
 
@@ -187,11 +203,25 @@ function loadAdminOverview() {
     const userId = localStorage.getItem("user_id");
 
     fetch(`${API_BASE}/admin/overview/?user_id=${userId}`)
-        .then(res => res.json())
+        .then(res => {
+            if (res.status === 403) {
+                alert("权限不足");
+                window.location.href = "index.html";
+                return;
+            }
+            return res.json();
+        })
         .then(data => {
             if (!data) return;
+
             document.getElementById("totalSpaces").innerText = data.total_spaces;
+            document.getElementById("totalCapacity").innerText = data.total_capacity;
             document.getElementById("activeReservations").innerText = data.active_reservations;
+            document.getElementById("historyReservations").innerText = data.history_reservations;
+        })
+        .catch(error => {
+            console.error("加载管理概览失败:", error);
+            alert("加载数据失败，请检查网络连接");
         });
 }
 
@@ -204,16 +234,73 @@ function logout() {
 }
 
 function showLogin() {
-    document.getElementById("loginModal").classList.add("show");
+    console.log("showLogin 函数被调用");
+
+    const modal = document.getElementById("loginModal");
+    if (modal) {
+        // 显示模态框
+        modal.style.display = "flex";
+
+        // 添加动画效果
+        setTimeout(() => {
+            modal.style.opacity = "1";
+        }, 10);
+
+        // 重置到登录标签页（默认）
+        const loginTab = document.getElementById('login-tab');
+        if (loginTab) {
+            console.log("切换到登录标签页");
+            const bsTab = new bootstrap.Tab(loginTab);
+            bsTab.show();
+        }
+
+        // 聚焦到用户名输入框
+        setTimeout(() => {
+            const usernameInput = document.getElementById("username");
+            if (usernameInput) {
+                usernameInput.focus();
+            }
+        }, 100);
+    } else {
+        console.error("错误：未找到 #loginModal 元素");
+    }
+}
+
+function closeLogin() {
+    const modal = document.getElementById("loginModal");
+    if (modal) {
+        modal.style.opacity = "0";
+        setTimeout(() => {
+            modal.style.display = "none";
+        }, 300);
+    }
 }
 
 function hideLogin() {
     document.getElementById("loginModal").classList.remove("show");
 }
 
-/* ======================
-   页面初始化
-====================== */
+function runViolationCheck() {
+    fetch(`${API_BASE}/check_violations/`)
+        .then(res => res.json())
+        .then(data => {
+            const resultDiv = document.getElementById("violationResult");
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-info">
+                        检测完成。<br>
+                        处理未签到: ${data.processed_no_shows}<br>
+                        当前超时: ${data.current_overtimes}
+                    </div>
+                `;
+            }
+            loadAdminOverview();
+        })
+        .catch(err => {
+            alert("检测失败: " + err);
+        });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("spaceTable")) loadSpaces();
 });
