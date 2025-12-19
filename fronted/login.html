@@ -34,15 +34,47 @@
 <!-- 登录弹窗（默认隐藏） -->
 <div id="loginModal" class="login-modal">
     <div class="login-card shadow">
-        <h4 class="mb-3 text-center">用户登录</h4>
+        <h3 class="text-center mb-3">学习空间预约系统</h3>
+            <p class="text-center text-muted mb-4">
+                校园学习空间智能管理平台
+            </p>
 
-        <input id="username" class="form-control mb-3" placeholder="学号 / 用户名">
-        <input id="password" type="password" class="form-control mb-3" placeholder="密码">
+            <ul class="nav nav-tabs nav-fill mb-4" id="authTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">登录</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">注册</button>
+                </li>
+            </ul>
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-secondary w-50" onclick="hideLogin()">取消</button>
-            <button class="btn btn-primary w-50" onclick="login()">登录</button>
-        </div>
+            <div class="tab-content" id="authTabContent">
+                <!-- 登录面板 -->
+                <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input id="username" class="form-control" placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">密码</label>
+                        <input id="password" type="password" class="form-control" placeholder="请输入密码">
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="login()">登录</button>
+                </div>
+
+                <!-- 注册面板 -->
+                <div class="tab-pane fade" id="register-pane" role="tabpanel">
+                    <div class="mb-3">
+                        <label class="form-label">新用户名</label>
+                        <input id="reg-username" class="form-control" placeholder="设置用户名">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">设置密码</label>
+                        <input id="reg-password" type="password" class="form-control" placeholder="设置密码">
+                    </div>
+                    <button class="btn btn-success w-100" onclick="register()">注册并登录</button>
+                </div>
+            </div>
     </div>
 </div>
 <section class="stats-section">

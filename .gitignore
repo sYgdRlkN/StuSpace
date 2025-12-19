@@ -1,7 +1,9 @@
 # Python
 __pycache__/
 *.pyc
-.env
+*.pyo
+*.pyd
+
 
 # Django
 db.sqlite3
