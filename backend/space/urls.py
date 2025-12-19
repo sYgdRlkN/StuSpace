@@ -11,4 +11,7 @@ urlpatterns = [
     path('check_in/', views.check_in),
     path('check_out/', views.check_out),
     path('check_violations/', views.check_violations),
+    path('cancel_reservation/', views.cancel_reservation),
+    path('submit_feedback/', views.submit_feedback),
+    path('admin/users/', views.user_list),
 ]

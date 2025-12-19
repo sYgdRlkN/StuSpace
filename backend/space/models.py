@@ -7,6 +7,7 @@ class User(models.Model):
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=100)
     role = models.CharField(max_length=10)
+    credit_score = models.IntegerField(default=100)
 
     class Meta:
         db_table = 'user'
@@ -27,6 +28,7 @@ class StudySpace(models.Model):
 class Reservation(models.Model):
     STATUS_CHOICES = [
         ('reserved', 'Reserved'),
+        ('in_use', 'In Use'),
         ('cancelled', 'Cancelled'),
         ('completed', 'Completed'),
     ]
@@ -68,3 +70,14 @@ class AbnormalBehavior(models.Model):
 
     class Meta:
         db_table = 'abnormal_behavior'
+
+
+class Feedback(models.Model):
+    feedback_id = models.AutoField(primary_key=True)
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+    rating = models.IntegerField()  # 1-5
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'feedback'

@@ -104,12 +104,13 @@ function loadSpaces() {
 
                 table.innerHTML += `
                 <tr>
-                    <td>${space.name}</td>
+                    <td class="ps-4">${space.name}</td>
                     <td>${space.location}</td>
-                    <td class="fw-bold ${capacityClass}">
-                        ${space.available} / ${space.capacity}
+                    <td class="text-center">${space.capacity}</td>
+                    <td class="text-center fw-bold ${capacityClass}">
+                        ${space.available}
                     </td>
-                    <td>
+                    <td class="text-center pe-4">
                         <button class="btn btn-sm btn-success"
                             ${disabled}
                             onclick="reserve(${space.space_id})">
@@ -185,15 +186,91 @@ function loadMyReservations() {
             table.innerHTML = "";
 
             data.forEach(r => {
+                let statusBadge = "";
+                let actionBtn = "";
+                
+                if (r.status === "reserved") {
+                    statusBadge = `<span class="badge bg-primary">已预约</span>`;
+                    actionBtn = `
+                        <button class="btn btn-sm btn-success me-1" onclick="checkIn(${r.reservation_id})">签到</button>
+                        <button class="btn btn-sm btn-danger" onclick="cancelReservation(${r.reservation_id})">取消</button>
+                    `;
+                } else if (r.status === "in_use") {
+                    statusBadge = `<span class="badge bg-warning text-dark">使用中</span>`;
+                    actionBtn = `<button class="btn btn-sm btn-danger" onclick="checkOut(${r.reservation_id})">签退</button>`;
+                } else if (r.status === "completed") {
+                    statusBadge = `<span class="badge bg-secondary">已完成</span>`;
+                    actionBtn = `<button class="btn btn-sm btn-outline-primary" onclick="openFeedback(${r.reservation_id})">评价</button>`;
+                } else if (r.status === "cancelled") {
+                    statusBadge = `<span class="badge bg-danger">已取消</span>`;
+                }
+
                 table.innerHTML += `
                 <tr>
                     <td>${r.space_name}</td>
                     <td>${r.location}</td>
-                    <td>${new Date(r.start_time).toLocaleString()}</td>
-                    <td>${r.status}</td>
+                    <td>${new Date(r.start_time).toLocaleString()} <br> ~ ${new Date(r.end_time).toLocaleString()}</td>
+                    <td>${statusBadge}</td>
+                    <td>${actionBtn}</td>
                 </tr>`;
             });
         });
+}
+
+function checkIn(reservationId) {
+    const userId = localStorage.getItem("user_id");
+    fetch(`${API_BASE}/check_in/`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({reservation_id: reservationId, user_id: userId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.msg === "success") {
+            alert("签到成功");
+            loadMyReservations();
+        } else {
+            alert("签到失败: " + data.msg);
+        }
+    });
+}
+
+function checkOut(reservationId) {
+    const userId = localStorage.getItem("user_id");
+    fetch(`${API_BASE}/check_out/`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({reservation_id: reservationId, user_id: userId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.msg === "success") {
+            alert("签退成功");
+            loadMyReservations();
+        } else {
+            alert("签退失败: " + data.msg);
+        }
+    });
+}
+
+function cancelReservation(reservationId) {
+    if(!confirm("确定要取消预约吗？")) return;
+    
+    const userId = localStorage.getItem("user_id");
+    fetch(`${API_BASE}/cancel_reservation/`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({reservation_id: reservationId, user_id: userId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.msg === "success") {
+            alert("取消成功");
+            loadMyReservations();
+        } else {
+            alert("取消失败: " + data.msg);
+        }
+    });
 }
 
 /* ======================
@@ -295,10 +372,66 @@ function runViolationCheck() {
                 `;
             }
             loadAdminOverview();
+            loadUserList(); // Refresh user list to show updated credit scores
         })
         .catch(err => {
             alert("检测失败: " + err);
         });
+}
+
+function loadUserList() {
+    const userId = localStorage.getItem("user_id");
+    fetch(`${API_BASE}/admin/users/?user_id=${userId}`)
+    .then(res => res.json())
+    .then(data => {
+        const table = document.getElementById("userTable");
+        if(!table) return;
+        table.innerHTML = "";
+        data.forEach(u => {
+            let rowClass = "";
+            if(u.credit_score < 60) rowClass = "table-danger";
+            else if(u.credit_score < 80) rowClass = "table-warning";
+            
+            table.innerHTML += `
+            <tr class="${rowClass}">
+                <td>${u.user_id}</td>
+                <td>${u.username}</td>
+                <td>${u.role}</td>
+                <td>${u.credit_score}</td>
+            </tr>
+            `;
+        });
+    });
+}
+
+function openFeedback(reservationId) {
+    document.getElementById("feedbackReservationId").value = reservationId;
+    new bootstrap.Modal(document.getElementById('feedbackModal')).show();
+}
+
+function submitFeedback() {
+    const reservationId = document.getElementById("feedbackReservationId").value;
+    const rating = document.getElementById("feedbackRating").value;
+    const comment = document.getElementById("feedbackComment").value;
+    
+    fetch(`${API_BASE}/submit_feedback/`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            reservation_id: reservationId,
+            rating: rating,
+            comment: comment
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.msg === "success") {
+            alert("评价提交成功！");
+            bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+        } else {
+            alert("提交失败: " + data.msg);
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", () => {

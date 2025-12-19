@@ -53,3 +53,60 @@ python manage.py runserver
 签到/签退：进入“我的预约”页面，点击对应按钮（注意时间限制，签到需在开始时间前后 15 分钟内）。
 
 违规检测：登录管理员账号（需在数据库设置role='admin'），在控制台点击“运行检测”。
+
+---
+
+#### 修复注册功能：
+
+问题原因：login.html 缺少 Bootstrap JS 库，导致“登录/注册”标签页无法切换，用户无法看到注册表单。
+修复：已在 login.html 中引入 bootstrap.bundle.min.js。
+
+#### 对齐预约面板表格：
+
+更新了 main.js 中的 loadSpaces 函数，确保生成的表格行包含 5 列（名称、位置、容量、剩余座位、操作），并添加了 ps-4 和 pe-4 类以与表头完美对齐。
+
+#### 新增“取消预约”功能：
+
+后端：在 views.py 中添加了 cancel_reservation 接口，允许用户取消状态为 reserved 的预约。
+前端：在“我的预约”列表中，为“已预约”状态的条目添加了“取消”按钮。点击后会弹出确认框，确认后调用后端接口取消预约并释放资源。
+
+#### 签到/签退功能检查与确认：
+
+实现逻辑：
+签到：调用 /api/check_in/，后端检查时间（需在开始时间前后 15 分钟内），成功后状态变为 in_use。
+签退：调用 /api/check_out/，后端记录结束时间并计算时长，状态变为 completed。
+前端展示：loadMyReservations 会根据预约状态动态显示“签到”或“签退”按钮。
+
+#### 管理员页面
+
+增加退出登录功能
+
+#### **管理员界面检查与增强**：
+
+- 在 [admin.html](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 中新增了 **“用户信用管理”** 面板。
+- 现在管理员可以查看所有用户的 ID、用户名、角色以及 **信用分 (Credit Score)**。
+- 信用分低于 60 的用户会以红色高亮显示，低于 80 的以黄色显示。
+
+#### **高级数据库功能 (3NF 合规)**：
+
+- 用户信用体系：
+  - 在 [User](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 表中新增 [credit_score](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 字段（默认 100）。
+  - 业务逻辑：
+    - **违规扣分**：在 [check_violations](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 接口中，如果检测到“未签到 (No Show)”，自动扣除用户 10 分信用分。
+    - **预约限制**：在 [reserve_space](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 接口中，如果用户信用分低于 60，将禁止预约。
+- 评价反馈系统：
+  - 新增 [Feedback](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 表（[feedback_id](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html), [reservation_id](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html), [rating](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html), [comment](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html), [created_at](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html)）。
+  - 该表通过 [reservation_id](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 关联到具体的预约记录，符合 **第三范式 (3NF)**，避免了数据冗余（不需要重复存储 user_id 或 space_id）。
+  - **前端实现**：在“我的预约”页面，对于状态为“已完成”的预约，新增了 **“评价”** 按钮。点击后弹出模态框，允许用户打分（1-5星）并填写评论。
+
+#### **如何演示给老师看：**
+
+1. **展示 3NF**：打开数据库模型代码 ([models.py](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html))，解释 [Feedback](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 表只关联 [Reservation](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html)，没有传递依赖；[User](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 表的 [credit_score](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 直接依赖于主键。
+2. 演示信用扣分：
+   - 创建一个预约，故意不签到。
+   - 在管理员界面点击“运行检测”。
+   - 刷新管理员界面，展示该用户的信用分减少了（例如从 100 变 90）。
+3. 演示评价功能：
+   - 正常签到并签退一个预约（状态变为“已完成”）。
+   - 在“我的预约”中点击“评价”，提交评分。
+   - （可选）展示数据库中新增的 [Feedback](vscode-file://vscode-app/c:/Users/jiangqinru/AppData/Local/Programs/Microsoft VS Code/resources/app/out/vs/code/electron-browser/workbench/workbench.html) 记录。

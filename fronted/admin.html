@@ -12,7 +12,9 @@
     <span class="navbar-brand">管理员控制台</span>
     <div class="ms-auto">
         <span class="text-white me-3">欢迎, 管理员</span>
-        <button class="btn btn-outline-light btn-sm" onclick="logout()">退出</button>
+        <button class="btn btn-danger btn-sm" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i> 退出登录
+        </button>
     </div>
 </nav>
 
@@ -64,13 +66,22 @@
         </div>
     </div>
 
-    <!-- 这里可以放更多图表或管理表格 -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
-            <h5 class="mb-0">系统公告</h5>
+            <h5 class="mb-0">用户信用管理</h5>
         </div>
         <div class="card-body">
-            <p class="text-muted">图表分析功能开发中...</p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>用户ID</th>
+                        <th>用户名</th>
+                        <th>角色</th>
+                        <th>信用分</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable"></tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -79,6 +90,7 @@
 <script>
     // 页面加载时获取数据
     loadAdminOverview();
+    loadUserList();
 </script>
 
 </body>
