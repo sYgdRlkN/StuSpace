@@ -106,9 +106,8 @@ function loadSpaces() {
                 <tr>
                     <td class="ps-4">${space.name}</td>
                     <td>${space.location}</td>
-                    <td class="text-center">${space.capacity}</td>
                     <td class="text-center fw-bold ${capacityClass}">
-                        ${space.available}
+                        ${space.available} / ${space.capacity}
                     </td>
                     <td class="text-center pe-4">
                         <button class="btn btn-sm btn-success"
