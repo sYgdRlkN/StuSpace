@@ -433,6 +433,31 @@ function submitFeedback() {
     });
 }
 
+function loadMyStats() {
+    const userId = localStorage.getItem("user_id");
+
+    fetch(`${API_BASE}/my_stats/?user_id=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("statTotalCount").innerText =
+                data.total_reservations;
+
+            document.getElementById("statTotalHours").innerText =
+                data.total_hours;
+
+            if (data.last_reservation) {
+                document.getElementById("statLast").innerText =
+                    `${data.last_reservation.space_name}
+                     (${data.last_reservation.start_time})`;
+            } else {
+                document.getElementById("statLast").innerText = "暂无";
+            }
+        });
+}
+
+document.addEventListener("DOMContentLoaded", loadMyStats);
+
+
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("spaceTable")) loadSpaces();
 });

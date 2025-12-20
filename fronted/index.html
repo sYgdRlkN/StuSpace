@@ -12,7 +12,9 @@
 
 <!-- 导航栏（与 login.html 完全一致） -->
 <nav class="navbar campus-navbar px-4">
-    <span class="navbar-brand">🏫 校园学习空间预约系统</span>
+    <span class="navbar-brand d-flex align-items-center">
+        <img src="assets/logo.png" alt="学校名称" class="school-logo">
+    </span>
 
     <div class="ms-auto">
         <a href="my_reservations.html" class="btn btn-outline-light btn-sm me-2">
@@ -87,7 +89,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content campus-modal">
             <div class="modal-header campus-modal-header">
-                <h5 class="modal-title">📅 预约学习空间</h5>
+                <h5 class="modal-title" id="reserveModalTitle">📅 预约学习空间</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

@@ -20,6 +20,17 @@ body {
     color: #fff;
     font-weight: bold;
     font-size: 1.1rem;
+    display: flex;
+    align-items: center;  /* 垂直居中 */
+    height: 72px;         /* 固定高度 */
+}
+
+/* logo 样式 */
+.school-logo {
+    height: 50px;   /* 固定高度，可修改 */
+    width: auto;    /* 保持比例 */
+    display: block;
+    max-width: 100%;
 }
 
 /* ========== 上半部分 Hero 区 ========== */
@@ -30,7 +41,7 @@ body {
     align-items: center;
 }
 
-/* 遮罩层（只作用于 Hero） */
+/* 遮罩层 */
 .hero-overlay {
     position: absolute;
     inset: 0;
@@ -121,7 +132,6 @@ body {
     animation: fadeIn 0.25s ease;
 }
 
-/* 登录卡片 */
 .login-card {
     width: 360px;
     padding: 30px;
@@ -141,7 +151,7 @@ body {
     }
 }
 
-/* ========== 响应式适配（加分） ========== */
+/* ========== 响应式适配 ========== */
 @media (max-width: 992px) {
     .welcome-text {
         margin-left: 60px;
@@ -168,9 +178,7 @@ body {
     }
 }
 
-/*================= index.html =========================*/
-
-/* 仪表盘页面样式 */
+/*================= 仪表盘页面样式 =========================*/
 .dashboard-page {
     background-color: #f8f9fc;
 }
@@ -191,11 +199,12 @@ body {
 }
 
 .campus-card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem 2rem;
+    background: transparent;
+    border-bottom: 1px solid #eee;
+    padding: 16px 24px;
 }
 
+/* 表格头 */
 .campus-table-header {
     background-color: #f8f9fa;
 }
@@ -206,6 +215,7 @@ body {
     padding: 1rem;
 }
 
+/* 引导卡片 */
 .guide-card {
     background: white;
     border-radius: 10px;
@@ -222,6 +232,7 @@ body {
     font-size: 2.5rem;
 }
 
+/* 模态框 */
 .campus-modal {
     border-radius: 15px;
     border: none;

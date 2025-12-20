@@ -7,6 +7,8 @@ from .models import User, StudySpace, Reservation, UsageRecord, AbnormalBehavior
 import json
 from datetime import datetime, timedelta
 
+
+
 # Helper for CORS headers (if middleware isn't enough or for OPTIONS)
 def cors_response(data, status=200):
     response = JsonResponse(data, status=status, safe=False)
@@ -427,3 +429,112 @@ def user_list(request):
         return cors_response(list(users))
     except User.DoesNotExist:
         return cors_response({"msg": "user not found"}, status=404)
+
+@csrf_exempt
+def my_stats(request):
+    if request.method != "GET":
+        return cors_response({"msg": "method not allowed"}, status=405)
+
+    user_id = request.GET.get("user_id")
+    period = request.GET.get("period", "7d")
+
+    if not user_id:
+        return cors_response({"msg": "missing user_id"}, status=400)
+
+    now = timezone.now()
+
+    # 时间范围
+    if period == "7d":
+        start_time = now - timedelta(days=7)
+    elif period == "30d":
+        start_time = now - timedelta(days=30)
+    elif period == "1y":
+        start_time = now - timedelta(days=365)
+    else:
+        start_time = None  # all
+
+    qs = Reservation.objects.filter(
+        user_id=user_id,
+        status__in=["completed", "in_use"]
+    )
+
+    if start_time:
+        qs = qs.filter(start_time__gte=start_time)
+
+    # 总预约次数
+    total_reservations = qs.count()
+
+    # 总使用时长（小时）
+    total_seconds = 0
+    for r in qs:
+        end = r.end_time or now
+        total_seconds += (end - r.start_time).total_seconds()
+
+    total_hours = round(total_seconds / 3600, 1)
+
+    # 最近一次预约
+    last = qs.order_by("-start_time").first()
+
+    last_reservation = None
+    if last:
+        space = StudySpace.objects.get(space_id=last.space_id)
+        last_reservation = {
+            "space_name": space.name,
+            "start_time": last.start_time,
+            "end_time": last.end_time
+        }
+
+    return cors_response({
+        "total_reservations": total_reservations,
+        "total_hours": total_hours,
+        "last_reservation": last_reservation
+    })
+
+from django.db.models import Count, Sum, F, ExpressionWrapper, DurationField
+from django.utils.timezone import localtime
+
+@csrf_exempt
+def my_stats(request):
+    user_id = request.GET.get("user_id")
+
+    if not user_id:
+        return cors_response({"msg": "missing user_id"}, status=400)
+
+    qs = Reservation.objects.filter(
+        user_id=user_id,
+        status="completed"
+    )
+
+    # 总预约次数
+    total_reservations = qs.count()
+
+    # 总使用时长（小时）
+    duration_expr = ExpressionWrapper(
+        F("end_time") - F("start_time"),
+        output_field=DurationField()
+    )
+
+    total_duration = qs.annotate(
+        duration=duration_expr
+    ).aggregate(
+        total=Sum("duration")
+    )["total"]
+
+    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+
+    # 最近一次预约
+    last = qs.order_by("-end_time").select_related("space").first()
+
+    last_reservation = None
+    if last:
+        last_reservation = {
+            "space_name": last.space.name,
+            "start_time": localtime(last.start_time).strftime("%Y-%m-%d %H:%M"),
+            "end_time": localtime(last.end_time).strftime("%Y-%m-%d %H:%M"),
+        }
+
+    return cors_response({
+        "total_reservations": total_reservations,
+        "total_hours": total_hours,
+        "last_reservation": last_reservation
+    })

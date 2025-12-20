@@ -4,11 +4,27 @@
     <meta charset="UTF-8">
     <title>我的预约</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- 自定义导航栏样式 -->
+    <style>
+    /* 自定义导航栏样式，覆盖 Bootstrap 默认样式 */
+    .navbar {
+        background-color: #1D4999 !important;  /* 统一蓝色 */
+        min-height: 88px;                      /* 高度统一 */
+    }
+    .navbar .navbar-brand img.school-logo {
+        height: 50px; /* logo 高度统一 */
+        width: auto;
+        display: block;
+    }
+    </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark bg-primary px-4">
-    <span class="navbar-brand">学习空间预约系统</span>
+    <span class="navbar-brand d-flex align-items-center">
+        <img src="assets/logo.png" alt="学校名称" class="school-logo">
+    </span>
     <div class="ms-auto">
         <a href="index.html" class="btn btn-light btn-sm me-2">返回首页</a>
     </div>
@@ -16,6 +32,34 @@
 
 <div class="container mt-4">
     <h3>我的预约记录</h3>
+
+    <!-- 我的预约统计 -->
+<div class="card mt-3 mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">📊 我的使用统计</h5>
+
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="fw-bold fs-4" id="statTotalCount">0</div>
+                <div class="text-muted">总预约次数</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="fw-bold fs-4" id="statTotalHours">0</div>
+                <div class="text-muted">总使用时长（小时）</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="fw-bold" id="statLast">暂无</div>
+                <div class="text-muted">最近一次预约</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <h4>历史记录</h4>
+
     <div class="card mt-3">
         <div class="card-body">
             <table class="table table-striped">
@@ -73,6 +117,7 @@
 <script>
     window.onload = function() {
         loadMyReservations();
+        loadMyStats();
     }
 </script>
 </body>

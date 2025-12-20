@@ -14,4 +14,5 @@ urlpatterns = [
     path('cancel_reservation/', views.cancel_reservation),
     path('submit_feedback/', views.submit_feedback),
     path('admin/users/', views.user_list),
+    path("my_stats/", views.my_stats),
 ]

@@ -5,24 +5,80 @@
     <title>管理员控制台 - 学习空间预约系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="ui.css" rel="stylesheet">
+
+    <style>
+        /* 页面整体固定高度，避免纵向滚动条 */
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        /* 统一导航栏样式 */
+        .navbar {
+            background-color: #1D4999 !important;
+            min-height: 88px;
+        }
+        .navbar .navbar-brand img.school-logo {
+            height: 50px;
+            width: auto;
+            display: block;
+        }
+        .navbar .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 页面主体容器 */
+        .admin-container {
+            height: calc(100% - 72px); /* 减去导航栏高度 */
+            overflow-y: auto;           /* 页面整体可滚动，如果内容过多 */
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* 卡片统一圆角和阴影 */
+        .admin-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 卡片标题统一背景 */
+        .admin-card-header {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* 按钮统一样式 */
+        .btn-custom {
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        /* 用户表格独立滚动 */
+        .user-table-container {
+            height: 400px;      /* 固定高度，可根据页面调整 */
+            overflow-y: auto;   /* 表格独立纵向滚动 */
+        }
+    </style>
 </head>
 <body>
 
-<nav class="navbar px-4">
-    <span class="navbar-brand">管理员控制台</span>
-    <div class="ms-auto">
+<nav class="navbar px-4 navbar-dark">
+    <span class="navbar-brand">
+        <img src="assets/logo.png" alt="学校名称" class="school-logo">
+        <span class="ms-2 text-white">管理员控制台</span>
+    </span>
+    <div class="ms-auto d-flex align-items-center">
         <span class="text-white me-3">欢迎, 管理员</span>
-        <button class="btn btn-danger btn-sm" onclick="logout()">
-            <i class="bi bi-box-arrow-right"></i> 退出登录
-        </button>
+        <button class="btn btn-light btn-sm btn-custom" onclick="logout()">退出登录</button>
     </div>
 </nav>
 
-<div class="container mt-4">
+<div class="container admin-container">
+    <!-- 统计卡片 -->
     <div class="row g-4 mb-4">
-        <!-- 统计卡片 -->
         <div class="col-md-3">
-            <div class="card text-white bg-primary h-100">
+            <div class="card admin-card text-white bg-primary h-100">
                 <div class="card-body">
                     <h5 class="card-title">总空间数</h5>
                     <h2 class="display-4" id="totalSpaces">-</h2>
@@ -30,7 +86,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-success h-100">
+            <div class="card admin-card text-white bg-success h-100">
                 <div class="card-body">
                     <h5 class="card-title">总座位容量</h5>
                     <h2 class="display-4" id="totalCapacity">-</h2>
@@ -38,7 +94,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-warning h-100">
+            <div class="card admin-card text-white bg-warning h-100">
                 <div class="card-body">
                     <h5 class="card-title">当前活跃预约</h5>
                     <h2 class="display-4" id="activeReservations">-</h2>
@@ -46,7 +102,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-secondary h-100">
+            <div class="card admin-card text-white bg-secondary h-100">
                 <div class="card-body">
                     <h5 class="card-title">历史总预约</h5>
                     <h2 class="display-4" id="historyReservations">-</h2>
@@ -55,10 +111,11 @@
         </div>
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <!-- 违规检测 -->
+    <div class="card admin-card mb-4">
+        <div class="card-header admin-card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">违规检测</h5>
-            <button class="btn btn-danger btn-sm" onclick="runViolationCheck()">运行检测</button>
+            <button class="btn btn-danger btn-sm btn-custom" onclick="runViolationCheck()">运行检测</button>
         </div>
         <div class="card-body">
             <p class="text-muted">检测未签到（No Show）和超时未签退（Overtime）的预约。</p>
@@ -66,12 +123,13 @@
         </div>
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
+    <!-- 用户信用管理 -->
+    <div class="card admin-card mb-4">
+        <div class="card-header admin-card-header">
             <h5 class="mb-0">用户信用管理</h5>
         </div>
-        <div class="card-body">
-            <table class="table table-striped">
+        <div class="card-body user-table-container">
+            <table class="table table-striped mb-0">
                 <thead>
                     <tr>
                         <th>用户ID</th>
@@ -92,6 +150,5 @@
     loadAdminOverview();
     loadUserList();
 </script>
-
 </body>
 </html>
