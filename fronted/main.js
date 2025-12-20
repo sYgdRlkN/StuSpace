@@ -1,4 +1,5 @@
 const API_BASE = "http://127.0.0.1:8000/api";
+const spaceNameMap = {};
 
 /* ======================
    登录
@@ -96,6 +97,9 @@ function loadSpaces() {
             table.innerHTML = "";
 
             data.forEach(space => {
+
+                spaceNameMap[space.space_id] = space.name;
+
                 let capacityClass = "text-success";
                 if (space.available <= 0) capacityClass = "text-danger";
                 else if (space.available <= 10) capacityClass = "text-warning";
@@ -132,6 +136,10 @@ function reserve(spaceId) {
     }
 
     document.getElementById("modalSpaceId").value = spaceId;
+
+    const spaceName = spaceNameMap[spaceId] || "学习空间";
+    document.getElementById("reserveModalTitle").textContent =
+        `${spaceName}`;
 
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
