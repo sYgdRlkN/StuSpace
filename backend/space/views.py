@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.db.models import Sum, Count, F, ExpressionWrapper, DurationField
 from django.utils import timezone
+from django.utils.timezone import localtime
 from .models import User, StudySpace, Reservation, UsageRecord, AbnormalBehavior
 import json
 from datetime import datetime, timedelta
@@ -445,9 +446,6 @@ def user_list(request):
         return cors_response(list(users))
     except User.DoesNotExist:
         return cors_response({"msg": "user not found"}, status=404)
-
-@csrf_exempt
-from django.utils.timezone import localtime
 
 @csrf_exempt
 def my_stats(request):
