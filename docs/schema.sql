@@ -8,6 +8,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP VIEW IF EXISTS v_space_today_stats;
 DROP PROCEDURE IF EXISTS sp_create_reservation;
+DROP TRIGGER IF EXISTS trg_feedback_only_completed;
 
 DROP TABLE IF EXISTS feedback;
 DROP TABLE IF EXISTS abnormal_behavior;
@@ -196,6 +197,29 @@ BEGIN
     VALUES (p_user_id, p_space_id, p_start, p_end, 'reserved');
 
     COMMIT;
+END$$
+
+DELIMITER ;
+
+-- =========================
+-- Trigger (integrity demo)
+-- =========================
+
+DELIMITER $$
+
+-- Only allow feedback for completed reservations
+CREATE TRIGGER trg_feedback_only_completed
+BEFORE INSERT ON feedback
+FOR EACH ROW
+BEGIN
+    DECLARE v_status VARCHAR(20);
+    SELECT status INTO v_status FROM reservation WHERE reservation_id = NEW.reservation_id;
+    IF v_status IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Reservation not found for feedback.';
+    END IF;
+    IF v_status <> 'completed' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Only completed reservations can be reviewed.';
+    END IF;
 END$$
 
 DELIMITER ;

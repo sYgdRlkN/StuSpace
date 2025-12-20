@@ -420,12 +420,14 @@ function submitFeedback() {
     const reservationId = document.getElementById("feedbackReservationId").value;
     const rating = document.getElementById("feedbackRating").value;
     const comment = document.getElementById("feedbackComment").value;
+    const userId = localStorage.getItem("user_id");
     
     fetch(`${API_BASE}/submit_feedback/`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             reservation_id: reservationId,
+            user_id: userId,
             rating: rating,
             comment: comment
         })

@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F, ExpressionWrapper, DurationField
 from django.utils import timezone
 from .models import User, StudySpace, Reservation, UsageRecord, AbnormalBehavior
 import json
@@ -90,7 +90,7 @@ def space_list(request):
             space_id=s.space_id,
             start_time__lt=one_hour_later,
             end_time__gt=now,
-            status='reserved'
+            status__in=['reserved', 'in_use']
         ).count()
 
         result.append({
@@ -116,6 +116,12 @@ def reserve_space(request):
         data = json.loads(request.body)
         user_id = data.get("user_id")
         space_id = data.get("space_id")
+
+        if not user_id or not space_id:
+            return cors_response({"msg": "missing user_id or space_id"}, status=400)
+
+        if not data.get("start_time") or not data.get("end_time"):
+            return cors_response({"msg": "missing start_time or end_time"}, status=400)
         
         # Parse times (handling potential 'Z' for UTC)
         start_str = data.get("start_time").replace("Z", "+00:00")
@@ -123,6 +129,9 @@ def reserve_space(request):
         
         start_time = datetime.fromisoformat(start_str)
         end_time = datetime.fromisoformat(end_str)
+
+        if end_time <= start_time:
+            return cors_response({"msg": "invalid time range"}, status=400)
 
         # Lock the space row for update to prevent race conditions
         try:
@@ -140,7 +149,7 @@ def reserve_space(request):
         # We need to count *current* reservations overlapping with requested time.
         current_reservations = Reservation.objects.filter(
             space_id=space.space_id,
-            status='reserved',
+            status__in=['reserved', 'in_use'],
             start_time__lt=end_time,
             end_time__gt=start_time
         ).count()
@@ -153,7 +162,7 @@ def reserve_space(request):
         # Let's check if user has ANY reservation in this time slot to prevent double booking themselves.
         user_conflict = Reservation.objects.filter(
             user_id=user_id,
-            status='reserved',
+            status__in=['reserved', 'in_use'],
             start_time__lt=end_time,
             end_time__gt=start_time
         ).exists()
@@ -392,6 +401,7 @@ def submit_feedback(request):
     try:
         data = json.loads(request.body)
         reservation_id = data.get("reservation_id")
+        user_id = data.get("user_id")
         rating = data.get("rating")
         comment = data.get("comment")
         
@@ -399,6 +409,12 @@ def submit_feedback(request):
             return cors_response({"msg": "invalid rating"}, status=400)
             
         reservation = Reservation.objects.get(reservation_id=reservation_id)
+
+        if user_id is not None and str(reservation.user_id) != str(user_id):
+            return cors_response({"msg": "permission denied"}, status=403)
+
+        if reservation.status != 'completed':
+            return cors_response({"msg": "only completed reservations can be reviewed"}, status=400)
         
         # Check if feedback already exists (simple check)
         from .models import Feedback
@@ -407,7 +423,7 @@ def submit_feedback(request):
 
         Feedback.objects.create(
             reservation=reservation,
-            rating=rating,
+            rating=int(rating),
             comment=comment
         )
         
@@ -431,66 +447,6 @@ def user_list(request):
         return cors_response({"msg": "user not found"}, status=404)
 
 @csrf_exempt
-def my_stats(request):
-    if request.method != "GET":
-        return cors_response({"msg": "method not allowed"}, status=405)
-
-    user_id = request.GET.get("user_id")
-    period = request.GET.get("period", "7d")
-
-    if not user_id:
-        return cors_response({"msg": "missing user_id"}, status=400)
-
-    now = timezone.now()
-
-    # 时间范围
-    if period == "7d":
-        start_time = now - timedelta(days=7)
-    elif period == "30d":
-        start_time = now - timedelta(days=30)
-    elif period == "1y":
-        start_time = now - timedelta(days=365)
-    else:
-        start_time = None  # all
-
-    qs = Reservation.objects.filter(
-        user_id=user_id,
-        status__in=["completed", "in_use"]
-    )
-
-    if start_time:
-        qs = qs.filter(start_time__gte=start_time)
-
-    # 总预约次数
-    total_reservations = qs.count()
-
-    # 总使用时长（小时）
-    total_seconds = 0
-    for r in qs:
-        end = r.end_time or now
-        total_seconds += (end - r.start_time).total_seconds()
-
-    total_hours = round(total_seconds / 3600, 1)
-
-    # 最近一次预约
-    last = qs.order_by("-start_time").first()
-
-    last_reservation = None
-    if last:
-        space = StudySpace.objects.get(space_id=last.space_id)
-        last_reservation = {
-            "space_name": space.name,
-            "start_time": last.start_time,
-            "end_time": last.end_time
-        }
-
-    return cors_response({
-        "total_reservations": total_reservations,
-        "total_hours": total_hours,
-        "last_reservation": last_reservation
-    })
-
-from django.db.models import Count, Sum, F, ExpressionWrapper, DurationField
 from django.utils.timezone import localtime
 
 @csrf_exempt
