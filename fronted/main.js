@@ -221,6 +221,9 @@ function loadMyReservations() {
                     <td>${actionBtn}</td>
                 </tr>`;
             });
+
+            // 同步刷新统计区，保证取消/签到/签退后数据及时更新
+            loadMyStats();
         });
 }
 
@@ -444,23 +447,24 @@ function submitFeedback() {
 }
 
 function loadMyStats() {
+    const statTotalCountEl = document.getElementById("statTotalCount");
+    const statTotalHoursEl = document.getElementById("statTotalHours");
+    const statLastEl = document.getElementById("statLast");
+    // 不是“我的预约”页面时，直接跳过，避免控制台报错
+    if (!statTotalCountEl || !statTotalHoursEl || !statLastEl) return;
+
     const userId = localStorage.getItem("user_id");
 
     fetch(`${API_BASE}/my_stats/?user_id=${userId}`)
         .then(res => res.json())
         .then(data => {
-            document.getElementById("statTotalCount").innerText =
-                data.total_reservations;
-
-            document.getElementById("statTotalHours").innerText =
-                data.total_hours;
+            statTotalCountEl.innerText = data.total_reservations;
+            statTotalHoursEl.innerText = data.total_hours;
 
             if (data.last_reservation) {
-                document.getElementById("statLast").innerText =
-                    `${data.last_reservation.space_name}
-                     (${data.last_reservation.start_time})`;
+                statLastEl.innerText = `${data.last_reservation.space_name} (${data.last_reservation.start_time})`;
             } else {
-                document.getElementById("statLast").innerText = "暂无";
+                statLastEl.innerText = "暂无";
             }
         });
 }

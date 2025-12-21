@@ -454,30 +454,33 @@ def my_stats(request):
     if not user_id:
         return cors_response({"msg": "missing user_id"}, status=400)
 
-    qs = Reservation.objects.filter(
-        user_id=user_id,
-        status="completed"
-    )
+    all_reservations = Reservation.objects.filter(user_id=user_id)
+    completed_reservations = all_reservations.filter(status="completed")
 
-    # 总预约次数
-    total_reservations = qs.count()
+    # 总预约次数（包含 reserved / in_use / completed / cancelled）
+    total_reservations = all_reservations.count()
 
-    # 总使用时长（小时）
-    duration_expr = ExpressionWrapper(
-        F("end_time") - F("start_time"),
-        output_field=DurationField()
-    )
+    # 总使用时长（小时）：优先用真实签到记录 UsageRecord.duration（分钟）
+    total_minutes = UsageRecord.objects.filter(
+        reservation__user_id=user_id,
+        reservation__status="completed",
+    ).aggregate(total=Sum("duration"))["total"]
 
-    total_duration = qs.annotate(
-        duration=duration_expr
-    ).aggregate(
-        total=Sum("duration")
-    )["total"]
+    if total_minutes is not None:
+        total_hours = round(float(total_minutes) / 60.0, 2)
+    else:
+        # 兜底：如果没有 usage_record（比如老数据），用预约时间段粗略估算
+        duration_expr = ExpressionWrapper(
+            F("end_time") - F("start_time"),
+            output_field=DurationField()
+        )
+        total_duration = completed_reservations.annotate(duration=duration_expr).aggregate(
+            total=Sum("duration")
+        )["total"]
+        total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
 
-    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
-
-    # 最近一次预约
-    last = qs.order_by("-end_time").select_related("space").first()
+    # 最近一次预约：按开始时间倒序，保证“新预约”立刻可见
+    last = all_reservations.order_by("-start_time").select_related("space").first()
 
     last_reservation = None
     if last:
@@ -485,6 +488,7 @@ def my_stats(request):
             "space_name": last.space.name,
             "start_time": localtime(last.start_time).strftime("%Y-%m-%d %H:%M"),
             "end_time": localtime(last.end_time).strftime("%Y-%m-%d %H:%M"),
+            "status": last.status,
         }
 
     return cors_response({
